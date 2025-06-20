@@ -12,7 +12,7 @@ import categoryRoutes from "./routes/categories.js";
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 4000;
-
+const MONGO_URL = process.env.MONGO_URI;
 /* Middlewares */
 app.use(express.json());
 app.use(cors());
@@ -25,18 +25,19 @@ app.use("/api/transactions", transactionRoutes);
 app.use("/api/categories", categoryRoutes);
 
 /* MongoDB connection */
-mongoose.connect(
-  process.env.MONGO_URL,
-  {
-    useCreateIndex: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  },
-  () => {
-    console.log("MONGODB CONNECTED");
+async function connectDB() {
+  try {
+    await mongoose.connect(MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('Connected to MongoDB');
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
   }
-);
+}
 
+connectDB();
 app.get("/", (req, res) => {
   res.status(200).send("Welcome to LibraryApp");
 });
